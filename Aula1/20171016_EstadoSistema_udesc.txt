@@ -1,0 +1,4 @@
+Numero total processos ativos,Numero de processos ativos do usuario Solicitado,Numero de processos ativos do usuario atual,Usuário Solicitado,Usuário atual,Numero de processos ativos do usuário root,Tempo que o computador esta ligado
+265,1,79,mysql,udesc,163,1:14
+265,0,79,,udesc,163,1:15
+265,0,79,naoexiste,udesc,163,1:15
