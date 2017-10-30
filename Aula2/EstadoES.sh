@@ -6,12 +6,45 @@
 FileName="$(date +"%Y%m%d_%T")_EstadoES_$USER.txt"
 
 #qtd de processadores
-cat /proc/cpuinfo | grep processor | wc -l >> $FileName
+qtdProcessadores=$(cat /proc/cpuinfo | grep processor | wc -l)
+echo "Quantidade de processadores: $qtdProcessadores" >> $FileName
+
 #modelo
-cat /proc/cpuinfo | grep "model name" -m 1 >> $FileName
+nomemodelo=$(cat /proc/cpuinfo | grep "model name" -m 1)
+nomemodelo=$(echo $nomemodelo | cut -d ':' -f 2)
+echo "Modelo do processador: $nomemodelo" >> $FileName
+
 #memoria primaria
-cat /proc/meminfo | grep MemTotal >> $FileName
-#informacao de particao de disco rigido
-lsblk -l  >> $FileName
+memoria=$(cat /proc/meminfo | grep MemTotal)
+memoria=$(echo $memoria | cut -d ':' -f 2)
+echo "Quantidade memória principal: $memoria" >> $FileName
+
+#informacao de unidades de disco rigido
+echo "Discos Rigidos e capacidade:" >> $FileName
+IFS=$'\n'
+for hd in $(lsblk -l | grep disk); do
+	echo "  -$(echo $hd | cut -d ' ' -f 1): $(echo $hd | cut -d ' ' -f 12)" >> $FileName
+done
+
+
 #interfaces de rede disponiveis
-netstat -i >> $FileName
+echo "Interfaces de rede disponiveis:" >> $FileName
+
+declare -i contador
+contador=0
+
+interfaces=$(netstat -i)
+for interface in $interfaces; do
+	if [ $contador -gt 1 ]; then
+		interface=$(echo $interface | cut -d ' ' -f 1)
+		speed=$(cat /sys/class/net/$interface/speed)
+
+		if [ ! -z $speed ]; then
+			echo "  -$interface: $speed Mbps" >> $FileName
+		else
+			echo "  -$interface" >> $FileName
+		fi
+
+	fi
+	contador=$contador+1
+done
